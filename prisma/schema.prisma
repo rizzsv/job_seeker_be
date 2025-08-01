@@ -12,7 +12,7 @@ model User {
   name     String
   email    String   @unique
   password String
-  role     Role
+  role     Role @default(SOCIETY)
   companies Company[]
   societies Society[]
   logs      Log[] @relation("UserLogs")

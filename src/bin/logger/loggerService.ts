@@ -1,4 +1,4 @@
-import logger from '../config/logger.config'
+import logger from '../../config/logger.config'
 
 interface LogMeta {
   context?: string
@@ -6,7 +6,7 @@ interface LogMeta {
   requestId?: string
 }
 
-class LoggerService {
+export class LoggerService {
   static info(message: string, meta?: LogMeta) {
     logger.info(meta ?? {}, message)
   }
@@ -21,6 +21,16 @@ class LoggerService {
 
   static debug(message: string, meta?: LogMeta) {
     logger.debug(meta ?? {}, message)
+  }
+  static async saveLog(userId: string, target: string, data: string) {
+    // Simpan ke DB atau log file
+    console.log(`Saving log for user ${userId} to ${target}`, data)
+    // Contoh: await prisma.log.create(...)
+  }
+
+  static async saveExternalLog(ip: string, target: string, data: string) {
+    console.log(`Saving external log from IP ${ip} to ${target}`, data)
+    // Contoh: await prisma.externalLog.create(...)
   }
 
   static withScope(scope: string) {

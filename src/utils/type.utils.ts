@@ -2,7 +2,7 @@ export interface JwtPayload {
   id: string
   username: string
   email: string
-  role: 'USER' | 'ADMIN'
+  role: 'HRD' | 'SOCIETY'
   iat?: number
   exp?: number
 }
