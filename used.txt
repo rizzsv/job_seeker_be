@@ -1,0 +1,15 @@
+// how use pino logger
+
+LoggerService.info('Server started', {
+  context: 'Bootstrap',
+  scope: 'App',
+})
+
+LoggerService.error('Database failed', {
+  context: 'ConnectDB',
+  scope: 'Prisma',
+  requestId: 'abc-123',
+})
+
+const authLogger = LoggerService.withScope('Auth')
+authLogger.info('User logged in', 'LoginService')
