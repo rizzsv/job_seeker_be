@@ -95,4 +95,8 @@ export class userSchema {
     page: Joi.number().integer().positive().default(1),
     quantity: Joi.number().integer().positive().required(),
   })
+
+  static readonly getProfile = Joi.object({
+    id: Joi.string().required(),
+  })
 }

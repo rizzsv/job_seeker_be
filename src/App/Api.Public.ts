@@ -16,7 +16,15 @@ ApiPublic.post(`${autoEnv.PREFIX}/register/society`, upload.fields([
 ]), UserController.Register)
 
 /** Society */
+
+//update profile
 ApiPublic.put(`${autoEnv.PREFIX}/updateProfile/society`, Jwt.jwtValidator, upload.fields([
     { name: 'photoProfile', maxCount: 1 },
     { name: 'cv', maxCount: 1 },
 ]), UserController.UpdateProfile)
+
+//get profile
+ApiPublic.get(`${autoEnv.PREFIX}/getProfile/society`, Jwt.jwtValidator, UserController.GetProfile)
+
+//logout
+ApiPublic.post(`${autoEnv.PREFIX}/logout/society`, Jwt.jwtValidator, UserController.Logout);

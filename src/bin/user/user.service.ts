@@ -4,7 +4,8 @@ import {
     login,
     register,
     updateProfile,
-    getUser
+    getUser,
+    toUserResponse
 } from "./user.model"
 import { userSchema } from "./user.schema";
 import LoggerService from "../../config/logger.config";
@@ -164,4 +165,28 @@ export class UserService {
 
         return { updated };
     }
+
+    static async getProfile(req: string) {
+        const ctx = "getProfile"
+        const scp = "UserService";
+
+        const userRequest = Validator.Validate(userSchema.getProfile, {id: req})
+
+        const isUserExist = await prisma.user.findFirst({
+            where: {
+                id: userRequest.id
+            }
+        })
+
+        if(!isUserExist) {
+            LoggerService.error(ctx, "user not found", scp);
+            throw new ErrorHandler(404, "user tidak ditemukan")
+        }
+
+        loggerConfig.info(ctx, "Success get profile", scp);
+
+        return toUserResponse(isUserExist);
+    }
+
+    
 }

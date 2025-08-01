@@ -8,98 +8,125 @@ import { login, register, updateProfile } from "./user.model";
 import { removeFileIfExists } from "../../helper/delete.file.helper";
 
 export class UserController {
-  static async Login(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const request: login = req.body;
-      await logRequest(req, `POST /user/login ${JSON.stringify(request)}`);
-      const response = await UserService.Login(request);
-      Wrapper.success(res, true, response, "Login Berhasil", 200);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  static async Register(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const files = req.files as {
-        photoProfile?: Express.Multer.File[];
-        cv?: Express.Multer.File[];
-      };
-
-      const photoFile = files?.photoProfile?.[0];
-      const cvFile = files?.cv?.[0];
-
-      if (!photoFile) {
-        throw new ErrorHandler(400, "Foto profil harus disertakan");
-      }
-      if (!cvFile) {
-        throw new ErrorHandler(400, "CV harus disertakan");
-      }
-
-      const request: register = {
-        username: req.body.username,
-        email: req.body.email,
-        password: req.body.password,
-        address: req.body.address,
-        gender: req.body.gender,
-        photoProfile: `photoProfile/${photoFile.filename}`,
-        cv: `cv/${cvFile.filename}`,
-        phone: req.body.phone,
-        education: req.body.education,
-        experience: req.body.experience,
-        date_of_birth: new Date(req.body.date_of_birth),
-      };
-
-      await logRequest(req, `POST /user/register ${JSON.stringify(request)}`);
-      const response = await UserService.Register(request);
-      Wrapper.success(res, true, response, "Register Berhasil", 200);
-    } catch (error) {
-      // Hapus file jika terjadi error
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      if (files) {
-        for (const field in files) {
-          files[field].forEach(file => {
-            removeFileIfExists(`public/${field}/${file.filename}`);
-          });
+    static async Login(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const request: login = req.body;
+            await logRequest(req, `POST /user/login ${JSON.stringify(request)}`);
+            const response = await UserService.Login(request);
+            Wrapper.success(res, true, response, "Login Berhasil", 200);
+        } catch (error) {
+            next(error);
         }
-      }
-      next(error);
     }
-  }
 
-  static async UpdateProfile(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const files = req.files as {
-        photoProfile?: Express.Multer.File[];
-        cv?: Express.Multer.File[];
-      };
+    static async Register(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const files = req.files as {
+                photoProfile?: Express.Multer.File[];
+                cv?: Express.Multer.File[];
+            };
 
-      const photoFile = files?.photoProfile?.[0];
-      const cvFile = files?.cv?.[0];
+            const photoFile = files?.photoProfile?.[0];
+            const cvFile = files?.cv?.[0];
 
-      const request: updateProfile = {
-        username: req.body.username,
-        email: req.body.email,
-        password: req.body.password,
-        address: req.body.address,
-        phone: req.body.phone,
-        summary: req.body.summary,
-        photoProfile: photoFile ? `photoProfile/${photoFile.filename}` : undefined,
-        cv: cvFile ? `cv/${cvFile.filename}` : undefined,
-        education: req.body.education,
-        experience: req.body.experience,
-        date_of_birth: req.body.date_of_birth ? new Date(req.body.date_of_birth) : undefined,
-        gender: req.body.gender,
-      };
+            if (!photoFile) {
+                throw new ErrorHandler(400, "Foto profil harus disertakan");
+            }
+            if (!cvFile) {
+                throw new ErrorHandler(400, "CV harus disertakan");
+            }
 
-      const userId = req.user?.id;
-      if (!userId) throw new ErrorHandler(401, "User tidak terautentikasi");
+            const request: register = {
+                username: req.body.username,
+                email: req.body.email,
+                password: req.body.password,
+                address: req.body.address,
+                gender: req.body.gender,
+                photoProfile: `photoProfile/${photoFile.filename}`,
+                cv: `cv/${cvFile.filename}`,
+                phone: req.body.phone,
+                education: req.body.education,
+                experience: req.body.experience,
+                date_of_birth: new Date(req.body.date_of_birth),
+            };
 
-      await logRequest(req, `PUT /user/updateProfile ${JSON.stringify(request)}`);
-      const response = await UserService.UpdateProfile(request, userId);
-      Wrapper.success(res, true, response, "Profile updated successfully", 200);
-    } catch (error) {
-      next(error);
+            await logRequest(req, `POST /user/register ${JSON.stringify(request)}`);
+            const response = await UserService.Register(request);
+            Wrapper.success(res, true, response, "Register Berhasil", 200);
+        } catch (error) {
+            // Hapus file jika terjadi error
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+            if (files) {
+                for (const field in files) {
+                    files[field].forEach(file => {
+                        removeFileIfExists(`public/${field}/${file.filename}`);
+                    });
+                }
+            }
+            next(error);
+        }
     }
-  }
+
+    static async UpdateProfile(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const files = req.files as {
+                photoProfile?: Express.Multer.File[];
+                cv?: Express.Multer.File[];
+            };
+
+            const photoFile = files?.photoProfile?.[0];
+            const cvFile = files?.cv?.[0];
+
+            const request: updateProfile = {
+                username: req.body.username,
+                email: req.body.email,
+                password: req.body.password,
+                address: req.body.address,
+                phone: req.body.phone,
+                summary: req.body.summary,
+                photoProfile: photoFile ? `photoProfile/${photoFile.filename}` : undefined,
+                cv: cvFile ? `cv/${cvFile.filename}` : undefined,
+                education: req.body.education,
+                experience: req.body.experience,
+                date_of_birth: req.body.date_of_birth ? new Date(req.body.date_of_birth) : undefined,
+                gender: req.body.gender,
+            };
+
+            const userId = req.user?.id;
+            if (!userId) throw new ErrorHandler(401, "User tidak terautentikasi");
+
+            await logRequest(req, `PUT /user/updateProfile ${JSON.stringify(request)}`);
+            const response = await UserService.UpdateProfile(request, userId);
+            Wrapper.success(res, true, response, "Profile updated successfully", 200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async GetProfile(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const response = await UserService.getProfile(req.user!.id);
+            Wrapper.success(res, true, response, 'Succes Get User Profile', 200)
+        } catch (error) {
+            next(error);
+        }
+    }
+
+        static async Logout(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            // Contoh jika pakai token dalam Authorization header
+            const token = req.headers.authorization?.split(' ')[1];
+
+            if (!token) {
+                throw new ErrorHandler(401, "Tidak ada token yang dikirim");
+            }
+
+            // Jika ingin blacklist token (opsional), bisa disimpan di database atau Redis
+            // await prisma.tokenBlacklist.create({ data: { token } });
+
+            Wrapper.success(res, true, null, "Logout berhasil", 200);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
