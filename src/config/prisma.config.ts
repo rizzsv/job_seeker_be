@@ -1,50 +1,31 @@
-import { PrismaClient } from '@prisma/client';
-import logger from './logger.config';
-import { PrismaQueryEvent, PrismaLogEvent } from '../utils/prisma-events';
+import { Prisma, PrismaClient } from '@prisma/client'
+import logger from './logger.config' // Import the logger
 
 export const prisma = new PrismaClient({
   log: [
-    { level: 'query', emit: 'event' },
-    { level: 'info', emit: 'event' },
-    { level: 'warn', emit: 'event' },
-    { level: 'error', emit: 'event' },
+    { level: 'query', emit: 'event' }, // Capture query events
+    { level: 'info', emit: 'event' }, // Capture info events
+    { level: 'warn', emit: 'event' }, // Capture warnings
+    { level: 'error', emit: 'event' }, // Capture errors
   ],
-});
+})
 
-prisma.$on('query', (event: PrismaQueryEvent) => {
-  const cleanedQuery = event.query.replace(/\s+/g, ' ').trim();
-  logger.debug({
-    context: 'PrismaClient',
-    scope: 'Query',
-    requestId: event.target,
-    query: cleanedQuery,
-    params: event.params,
-    duration: `${event.duration}ms`,
-  }, `💡 Executed Query`);
-});
+// Log every query executed
+prisma.$on('query', async (event: Prisma.QueryEvent) => {
+  logger.info('PrismaQuery', event.query, `Duration: ${event.duration}ms`)
+})
 
-prisma.$on('info', (event: PrismaLogEvent) => {
-  logger.info({
-    context: 'PrismaClient',
-    scope: 'Info',
-    message: event.message,
-  }, 'ℹ️ Prisma Info');
-});
+// Log other events
+prisma.$on('info', (event: Prisma.LogEvent) => {
+  logger.info('PrismaInfo', event.message)
+})
 
-prisma.$on('warn', (event: PrismaLogEvent) => {
-  logger.warn({
-    context: 'PrismaClient',
-    scope: 'Warning',
-    message: event.message,
-  }, '⚠️ Prisma Warning');
-});
+prisma.$on('warn', (event: Prisma.LogEvent) => {
+  logger.warn('PrismaWarning', event.message)
+})
 
-prisma.$on('error', (event: PrismaLogEvent) => {
-  logger.error({
-    context: 'PrismaClient',
-    scope: 'Error',
-    message: event.message,
-  }, '❌ Prisma Error');
-});
+prisma.$on('error', (event: Prisma.LogEvent) => {
+  logger.error('PrismaError', event.message)
+})
 
-export default prisma;
+export default prisma
