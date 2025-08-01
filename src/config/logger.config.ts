@@ -1,43 +1,39 @@
-import pino from 'pino'
+import winston from 'winston'
 
-// Cek environment
-const isProd = process.env.NODE_ENV === 'production'
-
-let logger = pino({
-  level: isProd ? 'info' : 'debug',
-  base: null,
-  timestamp: pino.stdTimeFunctions.isoTime,
-})
-
-if (!isProd) {
-  const transport = pino.transport({
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      translateTime: 'SYS:standard',
-      ignore: 'pid,hostname',
-      messageFormat: (
-        log: Record<string, unknown>,
-        messageKey: string,
-        levelLabel: string
-      ) => {
-        let msg = `{${levelLabel}} ${log[messageKey]}`
-        if (log.context) msg += ` | context: ${log.context}`
-        if (log.scope) msg += ` | scope: ${log.scope}`
-        if (log.requestId) msg += ` | reqId: ${log.requestId}`
-        return msg
-      },
-    } as any, // 👈 cast ke 'any' agar lolos pengecekan TypeScript
-  })
-
-  logger = pino(
-    {
-      level: 'debug',
-      base: null,
-      timestamp: pino.stdTimeFunctions.isoTime,
-    },
-    transport
-  )
+const customColors = {
+  error: 'red',
+  warn: 'yellow',
+  info: 'cyan',
+  http: 'magenta',
+  debug: 'green',
 }
 
-export default logger
+winston.addColors(customColors)
+
+const logger = winston.createLogger({
+  level: 'debug',
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.printf(({ timestamp, level, message, context, scope }) => {
+      let log = `[${timestamp}] ${level}: ${message}`
+      if (context) log += ` | context: ${context}`
+      if (scope) log += ` | scope: ${scope}`
+      return log
+    })
+  ),
+  transports: [new winston.transports.Console()],
+})
+
+const logWithStructure = (level: string, context: string, message: string, scope?: string) => {
+  logger.log({ level, message, context, scope })
+}
+
+const LoggerService = {
+  info: (context: string, message: string, scope?: string) => logWithStructure('info', context, message, scope),
+  error: (context: string, message: string, scope?: string) => logWithStructure('error', context, message, scope),
+  warn: (context: string, message: string, scope?: string) => logWithStructure('warn', context, message, scope),
+  debug: (context: string, message: string, scope?: string) => logWithStructure('debug', context, message, scope),
+}
+
+export default LoggerService
