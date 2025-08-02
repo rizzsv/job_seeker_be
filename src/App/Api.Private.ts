@@ -50,3 +50,6 @@ ApiPrivate.put(`${autoEnv.PREFIX}/company/update`, Jwt.jwtValidator, Jwt.allowed
 
 //get company profile
 ApiPrivate.get(`${autoEnv.PREFIX}/company/profile/:id`, Jwt.jwtValidator, Jwt.allowedRole(roles.HRD, roles.SOCIETY), CompanyController.getCompanyProfile);
+
+//delete company
+ApiPrivate.delete(`${autoEnv.PREFIX}/company/delete/:id`, Jwt.jwtValidator, Jwt.allowedRole(roles.HRD), CompanyController.deleteCompany);

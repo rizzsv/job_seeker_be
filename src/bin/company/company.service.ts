@@ -2,7 +2,7 @@ import prisma from "../../config/prisma.config";
 import { Validator } from "../../utils/valitador.utils";
 import loggerConfig from "../../config/logger.config";
 import { ErrorHandler } from "../../config/custom.config";
-import { createCompany, getCompany, getCompanyProfile, updateCompany } from "./company.model";
+import { createCompany, deleteCompany, getCompany, getCompanyProfile, updateCompany } from "./company.model";
 import { companySchema } from "./company.schema";
 
 export class CompanyService {
@@ -200,5 +200,28 @@ export class CompanyService {
             })),
             metaData
         };
+    }
+
+    static async deleteCompany(req: deleteCompany) {
+        const ctx = "Delete Company";
+        const scp = "companyService";
+
+        const userRequest = Validator.Validate(companySchema.deleteCompany, req);
+        const isCompanyExist = await prisma.company.findFirst({
+            where: { id: userRequest.id }
+        });
+        if (!isCompanyExist) {
+            loggerConfig.error(ctx, "Company not found", scp);
+            throw new ErrorHandler(404, "Perusahaan tidak ditemukan");
+        }
+
+        await prisma.company.delete({
+            where: { id: userRequest.id }
+        });
+
+        loggerConfig.info(ctx, 'Company deleted successfully', scp);
+        return {
+            message: "Perusahaan berhasil dihapus",
+        }
     }
 }

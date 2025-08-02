@@ -8,6 +8,7 @@ import { login, register, updateProfile } from "./user.model";
 import { removeFileIfExists } from "../../helper/delete.file.helper";
 import redis from "../../config/redis";
 import { createAccessToken, createRefreshToken } from "../../helper/jwt.helper";
+import { log } from "console";
 
 export class UserController {
     static async Login(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
@@ -174,6 +175,20 @@ static async RegisterSociety(req: CustomRequest, res: Response, next: NextFuncti
             await redis.del(`refreshToken:${userId}`);
 
             Wrapper.success(res, true, null, "Logout berhasil", 200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async DeleteProfile(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.user?.id;
+            if (!userId) throw new ErrorHandler(401, "User tidak terautentikasi");
+
+            await logRequest(req, `DELETE /user/deleteProfile userId: ${userId}`);
+            await redis.del(`refreshToken:${userId}`);
+
+            Wrapper.success(res, true, null, "Delete profile berhasil", 200);
         } catch (error) {
             next(error);
         }

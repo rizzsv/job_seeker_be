@@ -80,4 +80,20 @@ export class CompanyController {
             next(error);
         }
     }
+
+    static async deleteCompany(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const request = req.params.id;
+
+            await logRequest(req, `DELETE /api/company/delete/${request}`);
+
+            // Remove company logo if exists
+            await removeFileIfExists(`companyLogo/${request}`);
+
+            const response = await CompanyService.deleteCompany({ id: request });
+            Wrapper.success(res, true, response, "Perusahaan berhasil dihapus", 200);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
