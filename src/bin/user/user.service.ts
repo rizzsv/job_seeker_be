@@ -71,44 +71,58 @@ export class UserService {
     }
 
     /** Register User */
-    static async Register(req: register) {
-        const ctx = "Register"
-        const scp = "UserService";
+static async Register(req: register) {
+    const ctx = "Register";
+    const scp = "UserService";
 
-        const userRequest = Validator.Validate(userSchema.register, req)
+    const userRequest = Validator.Validate(userSchema.register, req);
 
-        const isUserExist = await prisma.user.count({
-            where: {
-                OR: [{ email: userRequest.email }, { username: userRequest.username }],
-            },
-        });
+    const isUserExist = await prisma.user.count({
+        where: {
+            OR: [{ email: userRequest.email }, { username: userRequest.username }],
+        },
+    });
 
-        if (isUserExist !== 0) {
-            LoggerService.error(ctx, "user already regist", scp)
-            throw new ErrorHandler(409, "akun sudah terdaftar")
-        }
-
-        const hashedPassword = await bcrypt.hash(userRequest.password, 10)
-
-        const user = await prisma.user.create({
-            data: {
-                email: userRequest.email,
-                username: userRequest.username,
-                password: hashedPassword,
-                address: userRequest.address,
-                phone: userRequest.phone,
-                gender: userRequest.gender,
-                education: userRequest.education,
-                experience: userRequest.experience,
-                photoProfile: userRequest.photoProfile,
-                date_of_birth: userRequest.date_of_birth,
-            },
-        });
-
-        LoggerService.info(ctx, 'user created successfully', scp)
-
-        return { user }
+    if (isUserExist !== 0) {
+        LoggerService.error(ctx, "user already regist", scp);
+        throw new ErrorHandler(409, "akun sudah terdaftar");
     }
+
+    // Validasi role
+    if (!userRequest.role) {
+        throw new ErrorHandler(400, "Role harus diisi");
+    }
+
+    const role = userRequest.role.toUpperCase(); // normalisasi ke kapital
+
+    if (role !== "HRD" && role !== "SOCIETY") {
+        throw new ErrorHandler(400, "Role tidak valid. Hanya HRD atau SOCIETY yang diperbolehkan");
+    }
+
+    const hashedPassword = await bcrypt.hash(userRequest.password, 10);
+
+    const user = await prisma.user.create({
+        data: {
+            email: userRequest.email,
+            username: userRequest.username,
+            password: hashedPassword,
+            address: userRequest.address,
+            phone: userRequest.phone,
+            gender: userRequest.gender,
+            education: userRequest.education,
+            experience: userRequest.experience,
+            photoProfile: userRequest.photoProfile,
+            date_of_birth: userRequest.date_of_birth,
+            role: role,
+        },
+    });
+
+    LoggerService.info(ctx, "user created successfully", scp);
+
+    return { user };
+}
+
+
 
     /** Update User Profile */
     static async UpdateProfile(req: updateProfile, userId?: string) {

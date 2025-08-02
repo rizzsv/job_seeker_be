@@ -5,6 +5,7 @@ import cors from "cors"
 import { connectDb } from "./config/db";
 import { globalErrorHandler } from "./middleware/error.middleware"
 import { ApiPublic } from "./App/Api.Public";
+import { ApiPrivate } from "./App/Api.Private";
 
 dotenv.config();
 const app = express();
@@ -23,6 +24,9 @@ app.get("/", (_, res) => {
 
 // Apply Public Api
 app.use(ApiPublic)
+
+// Apply Private Api
+app.use(ApiPrivate)
 
 // Apply Error Middleware
 app.use(globalErrorHandler)
