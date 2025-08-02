@@ -7,9 +7,11 @@ export interface createCompany {
     foundedYear?: number;
     npwp?: string;
     sizeEmployee?: number;
+    createdBy?: string; 
 }
 
 export interface updateCompany {
+    id: string;
     name?: string;
     address?: string;
     phone?: string;
@@ -18,6 +20,7 @@ export interface updateCompany {
     foundedYear?: number;
     npwp?: string;
     sizeEmployee?: number;
+    createdBy?: string;
 }
 
 export interface getCompanyProfile {

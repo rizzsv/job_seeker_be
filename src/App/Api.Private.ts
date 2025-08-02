@@ -44,3 +44,6 @@ ApiPrivate.post(`${autoEnv.PREFIX}/logout/hrd`, Jwt.jwtValidator,Jwt.allowedRole
 
 //create company
 ApiPrivate.post(`${autoEnv.PREFIX}/company/create`, Jwt.jwtValidator, Jwt.allowedRole(roles.HRD), CompanyController.createCompany);
+
+//update company
+ApiPrivate.put(`${autoEnv.PREFIX}/company/update`, Jwt.jwtValidator, Jwt.allowedRole(roles.HRD), CompanyController.updateCompany);

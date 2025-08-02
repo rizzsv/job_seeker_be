@@ -41,6 +41,9 @@ export class companySchema {
   });
 
   static readonly updateCompany = Joi.object({
+    id: Joi.string().required().messages({
+      "string.uuid": "ID perusahaan tidak valid",
+    }),
     name: Joi.string().min(3).max(100).optional(),
     address: Joi.string().min(5).max(255).optional(),
     phone: Joi.string().pattern(/^\+?\d{9,15}$/).optional(),
