@@ -47,3 +47,15 @@ export class Jwt {
     }
   }
 }
+
+export const createAccessToken = (payload: object) => {
+  return jwt.sign(payload, autoEnv.JWT_SECRET!, { expiresIn: '15m' })
+}
+
+export const createRefreshToken = (payload: object) => {
+  return jwt.sign(payload, autoEnv.REFRESH_SECRET!, { expiresIn: '7d' });
+};
+
+export const verifyRefreshToken = (token: string) => {
+  return jwt.verify(token, autoEnv.REFRESH_SECRET!);
+};

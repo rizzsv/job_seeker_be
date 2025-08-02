@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import cors from "cors"
 import { connectDb } from "./config/db";
 import { globalErrorHandler } from "./middleware/error.middleware"
+import { ApiPublic } from "./App/Api.Public";
+import { ApiPrivate } from "./App/Api.Private";
 
 dotenv.config();
 const app = express();
@@ -20,19 +22,15 @@ app.get("/", (_, res) => {
   res.send("API Running");
 });
 
+// Apply Public Api
+app.use(ApiPublic)
+
+// Apply Private Api
+app.use(ApiPrivate)
+
 // Apply Error Middleware
 app.use(globalErrorHandler)
 
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(chalk.bold.blueBright(`
-   ⚡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━⚡
-  `));
-  console.log(chalk.greenBright(`  🚀 Server is up and running!`));
-  console.log(chalk.yellow(`  🔥 Listening on: `) + chalk.underline.cyan(`http://localhost:${PORT}`));
-  console.log(chalk.magentaBright(`  📦 Ready to serve your greatness`));
-  console.log(chalk.blue(`  🧠 Stay sharp, dev warrior 💻`));
-  console.log(chalk.bold.blueBright(`
-   ⚡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━⚡
-  `));
-});
+app.listen(PORT, () => console.log(`🔥 BOOM! Server ignited on port ${PORT}. Let’s build something awesome!`));
