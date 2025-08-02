@@ -50,4 +50,17 @@ export class CompanyController {
             next(error);
         }
     }
+
+    static async getCompanyProfile(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const request = req.params.id
+
+            await logRequest(req, `GET /api/company/profile` + JSON.stringify(request));
+
+            const response = await CompanyService.getCompanyProfile({id: request});
+            Wrapper.success(res, true, response, "Sukses mengambil profil perusahaan", 200);
+        } catch (error) {
+            next(error);
+        }
+    }
 }

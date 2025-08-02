@@ -55,7 +55,7 @@ export class companySchema {
   });
 
   static readonly getCompanyProfile = Joi.object({
-    id: Joi.string().uuid().required().messages({
+    id: Joi.string().required().messages({
       "string.uuid": "ID perusahaan tidak valid",
     }),
   });
@@ -70,7 +70,7 @@ export class companySchema {
   });
 
   static readonly deleteCompany = Joi.object({
-    id: Joi.string().uuid().required().messages({
+    id: Joi.string().required().messages({
       "string.uuid": "ID tidak valid",
     }),
   });

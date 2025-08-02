@@ -47,3 +47,6 @@ ApiPrivate.post(`${autoEnv.PREFIX}/company/create`, Jwt.jwtValidator, Jwt.allowe
 
 //update company
 ApiPrivate.put(`${autoEnv.PREFIX}/company/update`, Jwt.jwtValidator, Jwt.allowedRole(roles.HRD), CompanyController.updateCompany);
+
+//get company profile
+ApiPrivate.get(`${autoEnv.PREFIX}/company/profile/:id`, Jwt.jwtValidator, Jwt.allowedRole(roles.HRD, roles.SOCIETY), CompanyController.getCompanyProfile);
