@@ -4,6 +4,7 @@ import { autoEnv } from "../utils/autoEnv.utils";
 import { UserController } from "../bin/user/user.controller";
 import { upload } from "../helper/upload.helper";
 import { Jwt } from "../helper/jwt.helper";
+import { CompanyController } from '../bin/company/company.controller';
 
 export const ApiPrivate = express.Router()
 
@@ -37,3 +38,9 @@ ApiPrivate.get(`${autoEnv.PREFIX}/getProfile/hrd`, Jwt.jwtValidator,Jwt.allowedR
 
 //logout
 ApiPrivate.post(`${autoEnv.PREFIX}/logout/hrd`, Jwt.jwtValidator,Jwt.allowedRole(roles.HRD), UserController.Logout)
+
+
+/** Api For Company */
+
+//create company
+ApiPrivate.post(`${autoEnv.PREFIX}/company/create`, Jwt.jwtValidator, Jwt.allowedRole(roles.HRD), CompanyController.createCompany);
