@@ -6,6 +6,8 @@ import { Wrapper } from "../../utils/wrapper.utils";
 import { logRequest } from "../../helper/logger.request";
 import { login, register, updateProfile } from "./user.model";
 import { removeFileIfExists } from "../../helper/delete.file.helper";
+import redis from "../../config/redis";
+import {createAccessToken, createRefreshToken} from "../../helper/jwt.helper";
 
 export class UserController {
     static async Login(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
@@ -13,6 +15,12 @@ export class UserController {
             const request: login = req.body;
             await logRequest(req, `POST /user/login ${JSON.stringify(request)}`);
             const response = await UserService.Login(request);
+
+            const payload = {id: response.id, role: response.role}
+            const accessToken = createAccessToken(payload);
+            const refreshToken = createRefreshToken(payload);
+
+            await redis.set(`refreshToken:${response.id}`, refreshToken, 'EX', 60 * 60 * 24 * 7); 
             Wrapper.success(res, true, response, "Login Berhasil", 200);
         } catch (error) {
             next(error);
@@ -114,15 +122,10 @@ export class UserController {
 
         static async Logout(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
         try {
-            // Contoh jika pakai token dalam Authorization header
-            const token = req.headers.authorization?.split(' ')[1];
+            const userId = req.user?.id;
+            if (!userId) throw new ErrorHandler(401, "User tidak terautentikasi");
 
-            if (!token) {
-                throw new ErrorHandler(401, "Tidak ada token yang dikirim");
-            }
-
-            // Jika ingin blacklist token (opsional), bisa disimpan di database atau Redis
-            // await prisma.tokenBlacklist.create({ data: { token } });
+            await redis.del(`refreshToken:${userId}`);
 
             Wrapper.success(res, true, null, "Logout berhasil", 200);
         } catch (error) {

@@ -66,6 +66,7 @@ export class UserService {
         return {
             token,
             role: isUserExist.role,
+            id: isUserExist.id,
         };
     }
 
