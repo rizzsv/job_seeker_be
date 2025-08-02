@@ -4,7 +4,7 @@ import Loggerconfig from "../../config/logger.config";
 import { logRequest } from "../../helper/logger.request";
 import { removeFileIfExists } from "../../helper/delete.file.helper";
 import { Wrapper } from "../../utils/wrapper.utils";
-import { createCompany, updateCompany } from "./company.model";
+import { createCompany, getCompany, updateCompany } from "./company.model";
 import { CompanyService } from "./company.service";
 
 export class CompanyController {
@@ -30,7 +30,7 @@ export class CompanyController {
             const response = await CompanyService.createCompany(request, userId)
             Wrapper.success(res, true, response, "Sukses membuat perusahaan", 201);
         } catch (error) {
-             next(error);
+            next(error);
         }
     }
 
@@ -57,8 +57,25 @@ export class CompanyController {
 
             await logRequest(req, `GET /api/company/profile` + JSON.stringify(request));
 
-            const response = await CompanyService.getCompanyProfile({id: request});
+            const response = await CompanyService.getCompanyProfile({ id: request });
             Wrapper.success(res, true, response, "Sukses mengambil profil perusahaan", 200);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getCompany(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const request: getCompany = req.query as unknown as getCompany;
+
+            request.periode = Number(request.periode);
+            request.page = Number(request.page);
+            request.quantity = Number(request.quantity);
+
+            await logRequest(req, `GET /api/company` + JSON.stringify(request));
+
+            const response = await CompanyService.getAllCompany(request);
+            Wrapper.pagination(res, true, response.metaData, 'Sukses mengambil daftar perusahaan', response.data, 200);
         } catch (error) {
             next(error);
         }

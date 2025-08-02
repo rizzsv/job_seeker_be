@@ -2,7 +2,7 @@ import prisma from "../../config/prisma.config";
 import { Validator } from "../../utils/valitador.utils";
 import loggerConfig from "../../config/logger.config";
 import { ErrorHandler } from "../../config/custom.config";
-import { createCompany, getCompanyProfile, updateCompany } from "./company.model";
+import { createCompany, getCompany, getCompanyProfile, updateCompany } from "./company.model";
 import { companySchema } from "./company.schema";
 
 export class CompanyService {
@@ -137,6 +137,68 @@ export class CompanyService {
         return {
             message: "Profil perusahaan berhasil diambil",
             data: isCompanyExist
+        };
+    }
+
+    static async getAllCompany(req: getCompany) {
+        const ctx = "Get All Company";
+        const scp = "companyService";
+
+        const userRequest = Validator.Validate(companySchema.getCompany, req);
+
+        const filter = {
+            ...(userRequest.search && {
+                name: {
+                    contains: userRequest.search,
+                },
+            }),
+            createdAt: {
+                gte: new Date(`${userRequest.periode}-01-01T00:00:00.000Z`),
+                lte: new Date(`${userRequest.periode}-12-31T23:59:59.999Z`),
+            },
+        }
+        const [result, totalItem] = await Promise.all([
+            prisma.company.findMany({
+                where: filter,
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                skip: (userRequest.page - 1) * userRequest.quantity,
+                take: userRequest.quantity,
+            }),
+            prisma.company.count({
+                where: filter
+            }),
+        ])
+
+        if (result.length === 0) {
+            loggerConfig.info(ctx, 'No company found', scp);
+            throw new ErrorHandler(404, 'Tidak ada company ditemukan');
+        }
+
+        const metaData = {
+            totalItem,
+            currentPage: userRequest.page,
+            quantity: userRequest.quantity,
+            totalPages: Math.ceil(totalItem / userRequest.quantity),
+        }
+
+        loggerConfig.info(ctx, 'Companies retrieved successfully', scp);
+
+        return {
+            data: result.map((company) => ({
+                id: company.id,
+                name: company.name,
+                address: company.address,
+                phone: company.phone,
+                description: company.description,
+                email: company.email,
+                foundedYear: company.foundedYear,
+                npwp: company.npwp,
+                sizeEmployee: company.sizeEmployee,
+                createdBy: company.createdBy,
+            })),
+            metaData
         };
     }
 }

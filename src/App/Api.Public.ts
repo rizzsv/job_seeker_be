@@ -4,6 +4,7 @@ import { autoEnv } from "../utils/autoEnv.utils";
 import { UserController } from "../bin/user/user.controller";
 import { upload } from "../helper/upload.helper";
 import { Jwt } from "../helper/jwt.helper";
+import { CompanyController } from "../bin/company/company.controller";
 
 export const ApiPublic = express.Router()
 
@@ -35,3 +36,7 @@ ApiPublic.get(`${autoEnv.PREFIX}/getProfile/society`, Jwt.jwtValidator, UserCont
 
 //logout
 ApiPublic.post(`${autoEnv.PREFIX}/logout/society`, Jwt.jwtValidator, UserController.Logout);
+
+/** Api For Company */
+// get company all
+ApiPublic.get(`${autoEnv.PREFIX}/get/company`, Jwt.jwtValidator, Jwt.allowedRole(roles.SOCIETY), CompanyController.getCompany);

@@ -202,6 +202,4 @@ static async Register(req: register) {
 
         return toUserResponse(isUserExist);
     }
-
-    
 }
